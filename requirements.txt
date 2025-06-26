@@ -1,0 +1,30 @@
+# Core packages
+numpy
+scipy
+torch>=2.0
+torchaudio
+soundfile
+librosa
+tqdm
+
+# ASR - Whisper
+transformers>=4.36.0
+accelerate
+sentencepiece
+openai-whisper  # optional if using Whisper CLI
+
+# Evaluation
+jiwer  # for WER and CER
+pesq  # Perceptual Evaluation of Speech Quality (ITU-T P.862)
+pystoi  # Short-Time Objective Intelligibility
+python_speech_features
+scikit-learn
+
+# Vocoder quality metric
+torchcrepe  # pitch and periodicity estimation
+
+# UTMOSv2 (via Git)
+git+https://github.com/sarulab-speech/UTMOSv2.git
+
+# Optional for resampling via ffmpeg (librosa)
+ffmpeg-python
