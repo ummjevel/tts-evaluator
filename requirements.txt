@@ -12,6 +12,7 @@ transformers>=4.36.0
 accelerate
 sentencepiece
 openai-whisper  # optional if using Whisper CLI
+faster-whisper
 
 # Evaluation
 jiwer  # for WER and CER

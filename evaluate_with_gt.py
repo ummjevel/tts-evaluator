@@ -6,6 +6,8 @@ from python_speech_features import mfcc
 from scipy.spatial.distance import euclidean
 import librosa
 from torchcrepe.loudness import REF_DB
+from pesq import pesq
+from pystoi import stoi
 
 SILENCE_THRESHOLD = -60
 UNVOICED_THRESHOLD = 0.21
@@ -13,6 +15,39 @@ UNVOICED_THRESHOLD = 0.21
 # ----------------------------
 # Metric Functions
 # ----------------------------
+
+def _resample(audio: np.ndarray, orig_sr: int, target_sr: int) -> np.ndarray:
+    """
+    오디오 리샘플링 (scipy 사용)
+    """
+    if orig_sr == target_sr:
+        return audio
+    gcd = np.gcd(orig_sr, target_sr)
+    up = target_sr // gcd
+    down = orig_sr // gcd
+    return resample_poly(audio, up, down)
+
+def compute_pesq(ref_audio: np.ndarray, gen_audio: np.ndarray, sr: int = 16000) -> float:
+    """
+    PESQ 계산 (ITU-T P.862)
+    sr은 8000 또는 16000만 지원 (nb 또는 wb).
+    다른 sr이 들어오면 16kHz로 리샘플링 후 wide-band 평가.
+    """
+    # 리샘플링 필요 여부 판단
+    if sr not in (8000, 16000):
+        target_sr = 16000
+        ref_audio = _resample(ref_audio, sr, target_sr)
+        gen_audio = _resample(gen_audio, sr, target_sr)
+        sr = target_sr
+
+    mode = "wb" if sr == 16000 else "nb"
+    return pesq(sr, ref_audio, gen_audio, mode)
+
+def compute_stoi(ref_audio: np.ndarray, gen_audio: np.ndarray, sr: int = 16000) -> float:
+    """
+    STOI 계산
+    """
+    return stoi(ref_audio, gen_audio, sr, extended=False)
 
 def compute_mcd(ref: np.ndarray, gen: np.ndarray, sr: int) -> float:
     ref_mfcc = mfcc(ref, sr)
